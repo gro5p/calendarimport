@@ -34,7 +34,7 @@ public class googleActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_google);
 
         // Views
         mStatusTextView = findViewById(R.id.status);
