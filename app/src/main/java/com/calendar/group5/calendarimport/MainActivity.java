@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         webSettings.setJavaScriptEnabled(true);
 
         // REMOTE RESOURCE
-        mWebView.loadUrl("http://soar.usm.edu/psp/saprd90/?cmd=login&languageCd=ENG&");
+        mWebView.loadUrl("http://soar.usm.edu/psp/saprd90/");
         mWebView.setWebViewClient(new MyWebViewClient());
 
         // Button listeners
