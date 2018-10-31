@@ -1,6 +1,5 @@
 package com.calendar.group5.calendarimport;
 
-import android.app.Activity;
 
 
 import android.content.Intent;
@@ -34,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GoogleSignInClient mGoogleSignInClient;
     private TextView mStatusTextView;
 
+    private WebView mWebView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Views
         mStatusTextView = findViewById(R.id.status);
 
-        mWebView = (WebView) findViewById(R.id.activity_main_webview);
+        mWebView = (WebView) findViewById(R.id.SoarLogin);
 
         // Force links and redirects to open in the WebView instead of in a browser
         mWebView.setWebViewClient(new WebViewClient());
