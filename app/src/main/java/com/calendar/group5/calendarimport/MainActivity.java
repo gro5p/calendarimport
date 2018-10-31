@@ -1,5 +1,8 @@
 package com.calendar.group5.calendarimport;
 
+import android.app.Activity;
+
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +21,11 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
@@ -33,6 +41,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Views
         mStatusTextView = findViewById(R.id.status);
+
+        mWebView = (WebView) findViewById(R.id.activity_main_webview);
+
+        // Force links and redirects to open in the WebView instead of in a browser
+        mWebView.setWebViewClient(new WebViewClient());
+
+        // Enable Javascript
+        WebSettings webSettings = mWebView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+        // REMOTE RESOURCE
+        mWebView.loadUrl("http://soar.usm.edu/psp/saprd90/?cmd=login&languageCd=ENG&");
+        mWebView.setWebViewClient(new MyWebViewClient());
 
         // Button listeners
         findViewById(R.id.google_sign_in_button).setOnClickListener(this);
