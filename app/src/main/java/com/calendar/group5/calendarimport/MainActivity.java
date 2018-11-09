@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
 
+    private boolean google_sign_in_result=false;
     private GoogleSignInClient mGoogleSignInClient;
     private TextView mStatusTextView;
 
@@ -105,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
+            google_sign_in_result=true;
         }
     }
     // [END onActivityResult]
