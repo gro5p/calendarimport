@@ -32,7 +32,7 @@ public class Soar2JSON {
 
 
 
-    public void main(String[] args) throws IOException, MalformedURLException, URISyntaxException {
+    public void main(String[] args) throws IOException, MalformedURLException, UnsupportedEncodingException, URISyntaxException {
 
         //this will store the output
         List<String> namesList = Stream.of(new String[]{}).collect(Collectors.toList());
