@@ -19,7 +19,7 @@ android {
         }
 
         applicationId "com.calendar.group5.calendarimport"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
