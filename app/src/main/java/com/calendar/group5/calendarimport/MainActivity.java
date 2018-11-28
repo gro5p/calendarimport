@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         // Views
-        mStatusTextView = findViewById(R.id.status);
+       // mStatusTextView = findViewById(R.id.status);
 
         mWebView = (WebView) findViewById(R.id.SoarLogin);
 
