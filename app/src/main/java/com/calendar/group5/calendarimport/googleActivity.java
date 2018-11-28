@@ -39,6 +39,8 @@ import com.google.api.services.calendar.model.EventReminder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -116,36 +118,43 @@ public class googleActivity extends AppCompatActivity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.w(TAG,"test 5");
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
+            Log.w(TAG,"test 6");
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            Log.w(TAG,"test 8");
             handleSignInResult(task);
+            Log.w(TAG,"test 9");
 
         }
+        Log.w(TAG,"test 7");
     }
     // [END onActivityResult]
 
     // [START handleSignInResult]
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
+            Log.w(TAG,"test 0");
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
 
-
+            Log.w(TAG,"test 1");
             // Signed in successfully, show authenticated UI.
             updateUI(account);
+            Log.w(TAG,"test 2");
             try {
+                Log.w(TAG,"test 3");
                  NetHttpTransport HTTP_TRANSPORT =  new com.google.api.client.http.javanet.NetHttpTransport();
-
+                Log.w(TAG,"test 4");
                 Credential cred = getCredentials(HTTP_TRANSPORT);
                 Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY,cred )
                         .setApplicationName(APPLICATION_NAME)
                         .build();
 
-
+                Log.w(TAG,"test 20");
                 Event event = new Event()
                         .setSummary("Google I/O 2015")
                         .setLocation("800 Howard St., San Francisco, CA 94103")
@@ -156,6 +165,7 @@ public class googleActivity extends AppCompatActivity implements
                         .setDateTime(startDateTime)
                         .setTimeZone("America/Los_Angeles");
                 event.setStart(start);
+                Log.w(TAG,"test 21");
 
                 DateTime endDateTime = new DateTime("2018-11-28T17:00:00-07:00");
                 EventDateTime end = new EventDateTime()
@@ -166,6 +176,7 @@ public class googleActivity extends AppCompatActivity implements
                 String[] recurrence = new String[] {"RRULE:FREQ=DAILY;COUNT=2"};
                 event.setRecurrence(Arrays.asList(recurrence));
 
+                Log.w(TAG,"test 22");
                 EventAttendee[] attendees = new EventAttendee[] {
                         new EventAttendee().setEmail("lpage@example.com"),
                         new EventAttendee().setEmail("sbrin@example.com"),
@@ -176,6 +187,7 @@ public class googleActivity extends AppCompatActivity implements
                         new EventReminder().setMethod("email").setMinutes(24 * 60),
                         new EventReminder().setMethod("popup").setMinutes(10),
                 };
+                Log.w(TAG,"test 23");
                 Event.Reminders reminders = new Event.Reminders()
                         .setUseDefault(false)
                         .setOverrides(Arrays.asList(reminderOverrides));
@@ -186,7 +198,8 @@ public class googleActivity extends AppCompatActivity implements
                 Log.d(TAG,"event created");
 
             } catch (IOException e) {
-                e.printStackTrace();
+
+                Log.w(TAG, "Something went wrong with Calandar: "+ print_errors(e));
             }
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
@@ -199,8 +212,17 @@ public class googleActivity extends AppCompatActivity implements
 
     // [START signIn]
     private void signIn() {
+        Log.w(TAG,"test 1/2");
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        Log.w(TAG,"test 3/4");
         startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private String print_errors(Exception e)
+    {
+        StringWriter errors = new StringWriter();
+        e.printStackTrace(new PrintWriter(errors));
+        return errors.toString();
     }
     // [END signIn]
 
@@ -269,8 +291,8 @@ public class googleActivity extends AppCompatActivity implements
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
                 .build();
-        LocalServerReceiver receier = new LocalServerReceiver.Builder().setPort(8888).build();
-        return new AuthorizationCodeInstalledApp(flow, receier).authorize("user");
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 }
 

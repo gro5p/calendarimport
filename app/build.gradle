@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.chaquo.python'
+
+
 android {
     compileSdkVersion 26
     defaultConfig {
@@ -10,9 +11,7 @@ android {
             targetCompatibility JavaVersion.VERSION_1_8
         }
 
-        python {
-            version "3.6.5"
-        }
+
 
         ndk {
             abiFilters "armeabi-v7a", "x86"
@@ -43,6 +42,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     //implementation project(":jspoon")
+
     //implementation project(":retrofit-converter-jspoon")
 
     //implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
@@ -53,7 +53,7 @@ dependencies {
     implementation 'com.google.api-client:google-api-client:1.23.0'
     implementation 'com.google.apis:google-api-services-calendar:v3-rev305-1.23.0'
     implementation 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
-//    implementation
+//    mvn exec:java -Dexec.mainClass="com.google.api.services.samples.calendar.sync.SyncTokenSample"
 }
 
 /*compileJava {
@@ -64,3 +64,5 @@ dependencies {
         }
     }
 }*/
+
+//apply plugin: 'com.google.gms.google-services'

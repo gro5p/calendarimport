@@ -22,8 +22,8 @@
             android:layout_height="48dp"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="@dimen/g_top_margin"/>
-           <!-- android:contentDescription="@string/desc_google_icon"-->
-            <!--android:src="@drawable/googleg_color"-->
+            android:contentDescription="@string/desc_google_icon"
+            android:src="@drawable/googleg_color"
 
         <TextView
             android:id="@+id/title_text"
