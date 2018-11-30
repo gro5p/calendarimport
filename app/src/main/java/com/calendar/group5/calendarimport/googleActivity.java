@@ -27,6 +27,9 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.Arrays;
+import java.util.List;
 import android.os.AsyncTask;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -38,19 +41,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.Arrays;
 
-
-/**
- * Created by miguel on 5/29/15.
- */
 
 public class googleActivity extends Activity {
-    /**
-     * A Google Calendar API service object used to access the API.
-     * Note: Do not confuse this class with API library's model classes, which
-     * represent specific data structures.
-     */
+
     com.google.api.services.calendar.Calendar mService;
 
     GoogleAccountCredential credential;
@@ -63,16 +57,13 @@ public class googleActivity extends Activity {
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { CalendarScopes.CALENDAR};
+    private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
 
-    /**
-     * Create the main activity.
-     * @param savedInstanceState previously saved instance data.
-     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_calendar);
+        setContentView(R.layout.activity_google);
         LinearLayout activityLayout = new LinearLayout(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -100,7 +91,7 @@ public class googleActivity extends Activity {
 
         setContentView(activityLayout);
 
-        // Initialize credentials and service object.
+
         SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
         credential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
@@ -113,10 +104,7 @@ public class googleActivity extends Activity {
                 .build();
     }
 
-    /**
-     * Called whenever this activity is pushed to the foreground, such as after
-     * a call to onCreate().
-     */
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -128,16 +116,7 @@ public class googleActivity extends Activity {
         }
     }
 
-    /**
-     * Called when an activity launched here (specifically, AccountPicker
-     * and authorization) exits, giving you the requestCode you started it with,
-     * the resultCode it returned, and any additional data from it.
-     * @param requestCode code indicating which activity result is incoming.
-     * @param resultCode code indicating the result of the incoming
-     *     activity result.
-     * @param data Intent (containing result data) returned by incoming
-     *     activity result.
-     */
+
     @Override
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
@@ -180,11 +159,7 @@ public class googleActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    /**
-     * Attempt to get a set of data from the Google Calendar API to display. If the
-     * email address isn't known yet, then call chooseAccount() method so the
-     * user can pick an account.
-     */
+
     private void refreshResults() {
         if (credential.getSelectedAccountName() == null) {
             chooseAccount();
@@ -197,11 +172,7 @@ public class googleActivity extends Activity {
         }
     }
 
-    /**
-     * Clear any existing Google Calendar API data from the TextView and update
-     * the header message; called from background threads and async tasks
-     * that need to update the UI (in the UI thread).
-     */
+
     public void clearResultsText() {
         runOnUiThread(new Runnable() {
             @Override
@@ -212,12 +183,7 @@ public class googleActivity extends Activity {
         });
     }
 
-    /**
-     * Fill the data TextView with the given List of Strings; called from
-     * background threads and async tasks that need to update the UI (in the
-     * UI thread).
-     * @param dataStrings a List of Strings to populate the main TextView with.
-     */
+
     public void updateResultsText(final List<String> dataStrings) {
         runOnUiThread(new Runnable() {
             @Override
@@ -235,11 +201,7 @@ public class googleActivity extends Activity {
         });
     }
 
-    /**
-     * Show a status message in the list header TextView; called from background
-     * threads and async tasks that need to update the UI (in the UI thread).
-     * @param message a String to display in the UI header TextView.
-     */
+
     public void updateStatus(final String message) {
         runOnUiThread(new Runnable() {
             @Override
@@ -249,19 +211,13 @@ public class googleActivity extends Activity {
         });
     }
 
-    /**
-     * Starts an activity in Google Play Services so the user can pick an
-     * account.
-     */
+
     private void chooseAccount() {
         startActivityForResult(
                 credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
     }
 
-    /**
-     * Checks whether the device currently has a network connection.
-     * @return true if the device has a network connection, false otherwise.
-     */
+
     private boolean isDeviceOnline() {
         ConnectivityManager connMgr =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -269,13 +225,7 @@ public class googleActivity extends Activity {
         return (networkInfo != null && networkInfo.isConnected());
     }
 
-    /**
-     * Check that Google Play services APK is installed and up to date. Will
-     * launch an error dialog for the user to update Google Play Services if
-     * possible.
-     * @return true if Google Play Services is available and up to
-     *     date on this device; false otherwise.
-     */
+
     private boolean isGooglePlayServicesAvailable() {
         final int connectionStatusCode =
                 GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -288,12 +238,7 @@ public class googleActivity extends Activity {
         return true;
     }
 
-    /**
-     * Display an error dialog showing that Google Play Services is missing
-     * or out of date.
-     * @param connectionStatusCode code describing the presence (or lack of)
-     *     Google Play Services on this device.
-     */
+
     void showGooglePlayServicesAvailabilityErrorDialog(
             final int connectionStatusCode) {
         runOnUiThread(new Runnable() {
@@ -313,18 +258,12 @@ public class googleActivity extends Activity {
 class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
     private googleActivity mActivity;
 
-    /**
-     * Constructor.
-     * @param activity googleActivity that spawned this task.
-     */
+
     ApiAsyncTask(googleActivity activity) {
         this.mActivity = activity;
     }
 
-    /**
-     * Background task to call Google Calendar API.
-     * @param params no parameters needed for this task.
-     */
+    
     @Override
     protected Void doInBackground(Void... params) {
         try {
@@ -347,50 +286,8 @@ class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    /**
-     * Fetch a list of the next 10 events from the primary calendar.
-     * @return List of Strings describing returned events.
-     * @throws IOException
-     */
+
     private List<String> getDataFromApi() throws IOException {
-        // List the next 10 events from the primary calendar.
-        Event event1 = new Event()
-                .setSummary("Google I/O 2015")
-                .setLocation("800 Howard St., San Francisco, CA 94103")
-                .setDescription("A chance to hear more about Google's developer products.");
-
-        DateTime startDateTime = new DateTime("2018-12-28T09:00:00-07:00");
-        EventDateTime start1 = new EventDateTime()
-                .setDateTime(startDateTime)
-                .setTimeZone("America/Los_Angeles");
-        event1.setStart(start1);
-
-        DateTime endDateTime = new DateTime("2018-12-28T17:00:00-07:00");
-        EventDateTime end = new EventDateTime()
-                .setDateTime(endDateTime)
-                .setTimeZone("America/Los_Angeles");
-        event1.setEnd(end);
-
-        String[] recurrence = new String[] {"RRULE:FREQ=DAILY;COUNT=2"};
-        event1.setRecurrence(Arrays.asList(recurrence));
-
-        EventAttendee[] attendees = new EventAttendee[] {
-                new EventAttendee().setEmail("lpage@example.com"),
-                new EventAttendee().setEmail("sbrin@example.com"),
-        };
-        event1.setAttendees(Arrays.asList(attendees));
-
-        EventReminder[] reminderOverrides = new EventReminder[] {
-                new EventReminder().setMethod("email").setMinutes(24 * 60),
-                new EventReminder().setMethod("popup").setMinutes(10),
-        };
-        Event.Reminders reminders = new Event.Reminders()
-                .setUseDefault(false)
-                .setOverrides(Arrays.asList(reminderOverrides));
-        event1.setReminders(reminders);
-
-        String calendarId = "primary";
-        mActivity.mService.events().insert(calendarId, event1).execute();
 
         DateTime now = new DateTime(System.currentTimeMillis());
         List<String> eventStrings = new ArrayList<String>();
@@ -405,15 +302,12 @@ class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
         for (Event event : items) {
             DateTime start = event.getStart().getDateTime();
             if (start == null) {
-                // All-day events don't have start times, so just use
-                // the start date.
+
                 start = event.getStart().getDate();
             }
             eventStrings.add(
                     String.format("%s (%s)", event.getSummary(), start));
         }
-
-
         return eventStrings;
     }
 
