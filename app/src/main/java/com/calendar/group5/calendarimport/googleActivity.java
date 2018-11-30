@@ -24,10 +24,22 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.CookieStore;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import android.os.AsyncTask;
@@ -40,7 +52,13 @@ import com.google.api.services.calendar.model.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.calendar.group5.calendarimport.SoarObject;
+
+import javax.net.ssl.HttpsURLConnection;
 
 
 public class googleActivity extends Activity {
@@ -58,7 +76,10 @@ public class googleActivity extends Activity {
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
+    String username;
+    String password;
 
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +123,13 @@ public class googleActivity extends Activity {
                 transport, jsonFactory, credential)
                 .setApplicationName("CalendarImport")
                 .build();
+
+        Bundle bundle = getIntent().getExtras();
+        username=bundle.getString("s_id");
+        password = bundle.getString("pw");
+
+
+        
     }
 
 
@@ -161,11 +189,13 @@ public class googleActivity extends Activity {
 
 
     private void refreshResults() {
+
+
         if (credential.getSelectedAccountName() == null) {
             chooseAccount();
         } else {
             if (isDeviceOnline()) {
-                new ApiAsyncTask(this).execute();
+                new ApiAsyncTask(this," "," ").execute();
             } else {
                 mStatusText.setText("No network connection available.");
             }
@@ -193,8 +223,7 @@ public class googleActivity extends Activity {
                 } else if (dataStrings.size() == 0) {
                     mStatusText.setText("No data found.");
                 } else {
-                    mStatusText.setText("Data retrieved using" +
-                            " the Google Calendar API:");
+                    mStatusText.setText("Schedule to be added to Calendar");
                     mResultsText.setText(TextUtils.join("\n\n", dataStrings));
                 }
             }
@@ -257,13 +286,31 @@ public class googleActivity extends Activity {
 
 class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
     private googleActivity mActivity;
+    private String user_name;
+    private String pw;
+    private List<String> namesList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> statusList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> unitsList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> gradingsList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> gradesList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> classNumbersList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> sectionsList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> componentsList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> timesList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> roomsList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> instructorsList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> startDateList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private List<String> endDatesList = Stream.of(new String[]{}).collect(Collectors.toList());
+    private String Semester_ID = "4191";
 
 
-    ApiAsyncTask(googleActivity activity) {
+    ApiAsyncTask(googleActivity activity, String user, String password) {
         this.mActivity = activity;
+        this.user_name = user;
+        this.pw = password;
     }
 
-    
+
     @Override
     protected Void doInBackground(Void... params) {
         try {
@@ -289,9 +336,169 @@ class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private List<String> getDataFromApi() throws IOException {
 
+        List<String> eventStrings = new ArrayList<String>();
+        CookieManager cookieManager = new CookieManager();
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        CookieHandler.setDefault(cookieManager);
+        ArrayList<SoarObject> arr = new ArrayList<>();
+        try {
+
+            String e_pass = URLEncoder.encode(this.pw, StandardCharsets.UTF_8.name());
+            String send_this = ("userid=" + this.user_name + "&pwd=" + e_pass);
+            URL login_URL = new URL("https://soar.usm.edu/psc/saprd90/EMPLOYEE/SA/c/NUI_FRAMEWORK.PT_LANDINGPAGE.GBL?&cmd=login&languageCd=ENG");
+
+            HttpsURLConnection con = (HttpsURLConnection) login_URL.openConnection();
+            con.setDoOutput(true);
+            con.setRequestMethod("POST");
+
+            con.getOutputStream().write(send_this.getBytes("UTF-8"));
+            con.getContent();
+
+
+            CookieStore cookieStore = cookieManager.getCookieStore();
+            //the cookies need to be passed in a particular Order
+            //so I'm using a map to pass them in that order
+            Map<String, String> cookieMap = (cookieStore.getCookies()).stream()
+                    .filter(cookie -> cookie.getName().equals("PS_TOKEN") ||
+                            cookie.getName().contains("18011") ||
+                            cookie.getName().equals("BIGipServersoar")).collect(
+                            Collectors.toMap(cookie -> cookie.getName(), cookie -> cookie.getValue()));
+
+            String tricky_bastard = "";
+
+            //the name of the second cookie often changes...
+            //this is here to store it in a string
+            for (String key : cookieMap.keySet()) {
+
+                if (key.contains("18011")) {
+                    tricky_bastard = key;
+                }
+            }
+
+
+            String cookie_header = "PS_TOKEN=" + cookieMap.get("PS_TOKEN") + "; "
+                    + tricky_bastard + "=" + cookieMap.get(tricky_bastard) + "; BIGipServersoar="
+                    + cookieMap.get("BIGipServersoar");
+
+            String Calendar_URL = "https://soar.usm.edu/psc/saprd90/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL?ACAD_CAREER=UGRD&INSTITUTION=USM01&STRM="
+                    + Semester_ID + "&&";
+
+            //Log.i(Tag,Calendar_URL);
+            URL services_URL = new URL(Calendar_URL);
+
+            //Log.d(TAG,cookie_header);
+
+
+            con.disconnect();
+            con = (HttpsURLConnection) services_URL.openConnection();
+            con.setDoOutput(true);
+            con.setRequestProperty("Cookie", cookie_header);
+            con.getContent();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    con.getInputStream()));
+
+            //BufferedWriter writer = new BufferedWriter(new FileWriter("output"));
+
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                if (inputLine.contains("PAGROUPDIVIDER"))
+                    namesList.add(inputLine.replace("</td></tr>", "").replaceAll(".*>", "").replace("&amp;", "and"));
+                if (inputLine.contains("STATUS"))
+                    statusList.add(inputLine.replace("</span>", "").replaceAll(".*>", ""));
+                if (inputLine.contains("DERIVED_REGFRM1_UNT_TAKEN"))
+                    unitsList.add(inputLine.replace("</span>", "").replaceAll(".*>", ""));
+                if (inputLine.contains("GB_DESCR"))
+                    gradingsList.add(inputLine.replace("</span>", "").replaceAll(".*>", ""));
+                if (inputLine.contains("DERIVED_REGFRM1_CRSE_GRADE_OFF"))
+                    gradesList.add(inputLine.replace("</span>", "").replaceAll(".*>", "").replace("&nbsp;", "Not Available"));
+                if (inputLine.contains("DERIVED_CLS_DTL_CLASS_NBR"))
+                    classNumbersList.add(inputLine.replace("</span>", "").replaceAll(".*>", ""));
+                if (inputLine.contains("MTG_SECTION"))
+                    sectionsList.add(inputLine.replace("</a></span>", "").replaceAll(".*>", ""));
+                if (inputLine.contains("MTG_COMP"))
+                    componentsList.add(inputLine.replace("</span>", "").replaceAll(".*>", ""));
+                if (inputLine.contains("MTG_SCHED"))
+                    timesList.add(inputLine.replace("</span>", "").replaceAll(".*>", ""));
+                if (inputLine.contains("MTG_LOC"))
+                    roomsList.add(inputLine.replace("</span>", "").replaceAll(".*>", ""));
+                if (inputLine.contains("DERIVED_CLS_DTL_SSR_INSTR_LONG"))
+                    instructorsList.add(inputLine.replace("</span>", "").replaceAll(".*>", ""));
+                if (inputLine.contains("MTG_DATES")) {
+                    String dates = inputLine.replace("</span>", "").replaceAll(".*>", "");
+                    String[] parts = dates.split(" - ");
+                    startDateList.add(parts[0]);
+                    endDatesList.add(parts[1]);
+                }
+            }
+            in.close();
+            Log.d("tag", namesList.size()+"");
+            for (int i = 0; i < namesList.size(); i++) {
+
+                arr.add(new SoarObject(namesList.get(i), unitsList.get(i),
+                        gradesList.get(i), classNumbersList.get(i), timesList.get(i),
+                        roomsList.get(i), instructorsList.get(i), startDateList.get(i),
+                        endDatesList.get(i)));
+                Log.d("Fuck", "here");
+                Log.d("Tag", arr.get(i).name);
+                eventStrings.add(String.format("%s\n, %s , %s\n, %s: %s-, %s\n, %s\n, %s-, %s\n,",
+                        arr.get(i).name,arr.get(i).building, arr.get(i).room,arr.get(i).days,arr.get(i).startTime,
+                        arr.get(i).endTime,arr.get(i).instructor,arr.get(i).startDate,arr.get(i).endDate));
+
+            /*Log.d(TAG,"Course: " + namesList.get(i));
+            Log.d(TAG,"Status: " + statusList.get(i));
+            Log.d(TAG,"Units: " + unitsList.get(i));
+            Log.d(TAG,"Grading Scale: " + gradingsList.get(i));
+            Log.d(TAG,"Grade: " + gradesList.get(i));
+            Log.d(TAG,"Course Code: " + classNumbersList.get(i));
+            Log.d(TAG,"Section: " + sectionsList.get(i));
+            Log.d(TAG,"Component: " + componentsList.get(i));
+            Log.d(TAG,"Times: " + timesList.get(i));
+            Log.d(TAG,"Location: " + roomsList.get(i));
+            Log.d(TAG,"Instructor: " + instructorsList.get(i));
+            Log.d(TAG,"Start Date: " + datesList.get(i));*/
+            }
+            //writer.close();
+            Log.d("Fuck", "here");
+
+
+        } catch (MalformedURLException e) {
+            // Replace this with your exception handling
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            // Replace this with your exception handling
+            e.printStackTrace();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+                
+            
+
+
+
+/*
         DateTime now = new DateTime(System.currentTimeMillis());
         List<String> eventStrings = new ArrayList<String>();
-        Events events = mActivity.mService.events().list("primary")
+        Events events = mActivity.mService;
+        for (int i=0; i < eventsList.size(); i++){
+            Event event = new Event();
+
+            event.setSummary(eventsList[i].name);
+            event.setLocation(eventsList[i].building+ " "+eventsList[i].room);
+            Date sDate = new SimpleDateFormat("yyyy-MM-dd").parse(eventsList[i].startDate);
+            Date sTime = new SimpleDateFormat("HH-mm-ss.SSS").parse(eventsList[i].startTime);
+            Date eTime = new SimpleDateFormat("HH-mm-ss.SSS").parse(eventsList[i].endTime);
+            DateTime start = DateTime.parseRfc3339(sDate+"T"+sTime+"-07:00");
+            DateTime end = DateTime.parseRfc3339(sDate+"T"+eTime+"-07:00");
+            event.setStart(new EventDateTime().setDateTime(start).setTimeZone("America/Chicago"));
+            event.setEnd(new EventDateTime().setDateTime(end).setTimeZone("America/Chicago"));
+            event.setRecurrence(Arrays.asList("RRULE:FREQ=WEEKLY;UNTIL=20110701T170000Z"));
+
+
+        }
+        events = mActivity.mService.events().list("primary")
                 .setMaxResults(10)
                 .setTimeMin(now)
                 .setOrderBy("startTime")
@@ -307,8 +514,45 @@ class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
             }
             eventStrings.add(
                     String.format("%s (%s)", event.getSummary(), start));
-        }
+        }*/
         return eventStrings;
     }
 
+
+
+}
+
+
+class SoarObject{
+    public String name;//
+    public String units;//omit
+    public String grades;//omit
+    public String classNumber;//omit
+    public String days;//
+    public String startTime;//
+    public String endTime;//
+    public String building;//
+    public String room;//
+    public String instructor;
+    public String startDate;
+    public String endDate;
+
+    public SoarObject(String a,String b,String c,String d,String e,String f,String g,String h,String i){
+        this.name=a;
+        this.units=b;
+        this.grades=c;
+        this.classNumber=d;
+        String[] parts = e.split(" - ");
+        String[] front_parts=parts[0].split(" ");
+        this.days=front_parts[0];
+        this.startTime=front_parts[1];    
+        this.endTime=parts[1];
+        String[] location_parts = f.split(" ");
+        this.building=location_parts[0];
+        this.room=location_parts[1];
+        this.instructor=g;
+        this.startDate=h;
+        this.endDate=i;
+
+    }
 }
