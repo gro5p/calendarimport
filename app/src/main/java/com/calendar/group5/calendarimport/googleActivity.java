@@ -40,7 +40,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import android.os.AsyncTask;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -53,6 +57,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Spliterator;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -127,7 +133,7 @@ public class googleActivity extends Activity {
         Bundle bundle = getIntent().getExtras();
         username=bundle.getString("s_id");
         password = bundle.getString("pw");
-
+        Log.d("user",username);
 
         
     }
@@ -195,7 +201,7 @@ public class googleActivity extends Activity {
             chooseAccount();
         } else {
             if (isDeviceOnline()) {
-                new ApiAsyncTask(this," "," ").execute();
+                new ApiAsyncTask(this,username,password).execute();
             } else {
                 mStatusText.setText("No network connection available.");
             }
@@ -302,6 +308,8 @@ class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
     private List<String> startDateList = Stream.of(new String[]{}).collect(Collectors.toList());
     private List<String> endDatesList = Stream.of(new String[]{}).collect(Collectors.toList());
     private String Semester_ID = "4191";
+    private static SimpleDateFormat inSDF = new SimpleDateFormat("MM/dd/yyyy");
+    private static SimpleDateFormat outSDate = new SimpleDateFormat("yyyy-MM-dd");
 
 
     ApiAsyncTask(googleActivity activity, String user, String password) {
@@ -439,8 +447,8 @@ class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
                         gradesList.get(i), classNumbersList.get(i), timesList.get(i),
                         roomsList.get(i), instructorsList.get(i), startDateList.get(i),
                         endDatesList.get(i)));
-                Log.d("Fuck", "here");
-                Log.d("Tag", arr.get(i).name);
+
+
                 eventStrings.add(String.format("%s\n, %s , %s\n, %s: %s-, %s\n, %s\n, %s-, %s\n,",
                         arr.get(i).name,arr.get(i).building, arr.get(i).room,arr.get(i).days,arr.get(i).startTime,
                         arr.get(i).endTime,arr.get(i).instructor,arr.get(i).startDate,arr.get(i).endDate));
@@ -459,7 +467,7 @@ class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
             Log.d(TAG,"Start Date: " + datesList.get(i));*/
             }
             //writer.close();
-            Log.d("Fuck", "here");
+
 
 
         } catch (MalformedURLException e) {
@@ -478,49 +486,66 @@ class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
 
 
 
-/*
+
         DateTime now = new DateTime(System.currentTimeMillis());
-        List<String> eventStrings = new ArrayList<String>();
-        Events events = mActivity.mService;
-        for (int i=0; i < eventsList.size(); i++){
+        com.google.api.services.calendar.Calendar service= mActivity.mService;
+
+        for (int i=0; i < arr.size(); i++){
             Event event = new Event();
+            try {
+                event.setSummary(arr.get(i).name);
+                event.setLocation(arr.get(i).building + " " + arr.get(i).room);
+                event.setDescription("Instructor: "+arr.get(i).instructor);
+                Date sDate = new SimpleDateFormat("MM/dd/yyyy' 'hh:mmaa").parse(arr.get(i).startDate+" "+arr.get(i).startTime);
+                Date eDate =new SimpleDateFormat("MM/dd/yyyy' 'hh:mmaa").parse(arr.get(i).startDate+" "+arr.get(i).endTime);
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
 
-            event.setSummary(eventsList[i].name);
-            event.setLocation(eventsList[i].building+ " "+eventsList[i].room);
-            Date sDate = new SimpleDateFormat("yyyy-MM-dd").parse(eventsList[i].startDate);
-            Date sTime = new SimpleDateFormat("HH-mm-ss.SSS").parse(eventsList[i].startTime);
-            Date eTime = new SimpleDateFormat("HH-mm-ss.SSS").parse(eventsList[i].endTime);
-            DateTime start = DateTime.parseRfc3339(sDate+"T"+sTime+"-07:00");
-            DateTime end = DateTime.parseRfc3339(sDate+"T"+eTime+"-07:00");
-            event.setStart(new EventDateTime().setDateTime(start).setTimeZone("America/Chicago"));
-            event.setEnd(new EventDateTime().setDateTime(end).setTimeZone("America/Chicago"));
-            event.setRecurrence(Arrays.asList("RRULE:FREQ=WEEKLY;UNTIL=20110701T170000Z"));
+                String startDate =new String(df.format(sDate)+":00-00:00");
+                String endDate = new String(df.format(eDate)+":00-00:00");
+                String[] splitEndDate = arr.get(i).endDate.split("/");
+                String end_date=splitEndDate[2]+splitEndDate[0]+splitEndDate[1]+"T115900Z";
+                
+
+               // if (splitStartTime[2]=="P"){
+                    //splitStartTime[0]=(Integer.toString((Integer.parseInt(splitStartTime[0]))+12)));
+               // }
+                //Log.d("newtag2",splitStartTime[0]);
+               // Date s_date=new Date.parseRfc3339()
+                
+                DateTime start = DateTime.parseRfc3339(startDate);
+                DateTime end = DateTime.parseRfc3339(endDate);
+                Log.d(arr.get(i).name+" start",start.toString());
+                event.setStart(new EventDateTime().setDateTime(start).setTimeZone("America/Chicago"));
+                event.setEnd(new EventDateTime().setDateTime(end).setTimeZone("America/Chicago"));
+                String by_day = arr.get(i).days.replaceAll("(\\p{Ll})(\\p{Lu})","$1,$2").toUpperCase();
 
 
-        }
-        events = mActivity.mService.events().list("primary")
-                .setMaxResults(10)
-                .setTimeMin(now)
-                .setOrderBy("startTime")
-                .setSingleEvents(true)
-                .execute();
-        List<Event> items = events.getItems();
+                /*for (int j = 0; j < days.length; j++)
+                {
+                    Log.d("loop contents: ", days[i]);
+                    by_day = days[j].toUpperCase() + ",";
+                }*/
 
-        for (Event event : items) {
-            DateTime start = event.getStart().getDateTime();
-            if (start == null) {
+                Log.d(arr.get(i).name, by_day);
+                Log.d("endDate: ", end_date);
+                Log.d(arr.get(i).name+": rule","RRULE:FREQ=WEEKLY;BYDAY=" + by_day + ";UNTIL="
+                        + end_date);
+                event.setRecurrence(Arrays.asList("RRULE:FREQ=WEEKLY;BYDAY=" + by_day + ";UNTIL="
+                        + end_date));
 
-                start = event.getStart().getDate();
+                service.events().insert("primary", event).execute();
+            }catch (Exception e){
+                e.printStackTrace();
             }
-            eventStrings.add(
-                    String.format("%s (%s)", event.getSummary(), start));
-        }*/
-        return eventStrings;
+        }
+            return eventStrings;
+        }
+
     }
 
 
 
-}
+
 
 
 class SoarObject{
