@@ -1,6 +1,9 @@
 package com.calendar.group5.calendarimport;
 
 
+import android.app.Activity;
+import android.content.Intent;
+
 import java.net.CookieHandler;
 import java.net.CookiePolicy;
 import java.net.MalformedURLException;
@@ -23,16 +26,29 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.*;
+import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
 
-public class Soar2JSON {
-    private String user_name = "w10016423";
+public class Soar2JSON extends Activity {
+    private String user_name;
     private String Semester_ID = "4191";
-    private String password = "12345";
+    private String password;
+    private static final String TAG = "Soar2Json";
 
 
 
 
     public void main(String[] args) throws IOException, MalformedURLException, UnsupportedEncodingException, URISyntaxException {
+
+        Toast.makeText(Soar2JSON.this, "yeet",
+                Toast.LENGTH_SHORT).show();
+        TextView textView = findViewById(R.id.textView);
+        textView.setText("yeet");
+
+        Intent intent = getIntent();
+        user_name = intent.getStringExtra("s_id");
+        password = intent.getStringExtra("pw");
 
         //this will store the output
         List<String> namesList = Stream.of(new String[]{}).collect(Collectors.toList());
@@ -53,9 +69,6 @@ public class Soar2JSON {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(cookieManager);
 
-        java.io.Console console = System.console();
-        String user_name = console.readLine("Username: ");
-        String password = new String(console.readPassword("Password: "));
 
         try {
             String Semester_ID = "4191";
@@ -100,7 +113,7 @@ public class Soar2JSON {
             String Calendar_URL = "https://soar.usm.edu/psc/saprd90/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL?ACAD_CAREER=UGRD&INSTITUTION=USM01&STRM="
                     + Semester_ID + "&&";
 
-            //System.out.println(Calendar_URL);
+            //Log.i(Tag,Calendar_URL);
             URL services_URL = new URL(Calendar_URL);
 
             //System.out.println(cookie_header);
@@ -158,7 +171,6 @@ public class Soar2JSON {
                 System.out.println("Location: " + roomsList.get(i));
                 System.out.println("Instructor: " + instructorsList.get(i));
                 System.out.println("Dates: " + datesList.get(i));
-                System.out.println();
             }
             writer.close();
 
