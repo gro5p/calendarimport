@@ -39,7 +39,7 @@ public class Soar2JSON extends Activity {
 
 
 
-    public void main(String[] args) throws IOException, MalformedURLException, UnsupportedEncodingException, URISyntaxException {
+    public void Soar2Json(String[] args) throws IOException, MalformedURLException, UnsupportedEncodingException, URISyntaxException {
 
         Toast.makeText(Soar2JSON.this, "yeet",
                 Toast.LENGTH_SHORT).show();
@@ -116,7 +116,7 @@ public class Soar2JSON extends Activity {
             //Log.i(Tag,Calendar_URL);
             URL services_URL = new URL(Calendar_URL);
 
-            //System.out.println(cookie_header);
+            //Log.d(TAG,cookie_header);
 
 
             con.disconnect();
@@ -159,18 +159,18 @@ public class Soar2JSON extends Activity {
             }
             in.close();
             for (int i = 0; i < namesList.size(); i++) {
-                System.out.println("Course: " + namesList.get(i));
-                System.out.println("Status: " + statusList.get(i));
-                System.out.println("Units: " + unitsList.get(i));
-                System.out.println("Grading Scale: " + gradingsList.get(i));
-                System.out.println("Grade: " + gradesList.get(i));
-                System.out.println("Course Code: " + classNumbersList.get(i));
-                System.out.println("Section: " + sectionsList.get(i));
-                System.out.println("Component: " + componentsList.get(i));
-                System.out.println("Times: " + timesList.get(i));
-                System.out.println("Location: " + roomsList.get(i));
-                System.out.println("Instructor: " + instructorsList.get(i));
-                System.out.println("Dates: " + datesList.get(i));
+                Log.d(TAG,"Course: " + namesList.get(i));
+                Log.d(TAG,"Status: " + statusList.get(i));
+                Log.d(TAG,"Units: " + unitsList.get(i));
+                Log.d(TAG,"Grading Scale: " + gradingsList.get(i));
+                Log.d(TAG,"Grade: " + gradesList.get(i));
+                Log.d(TAG,"Course Code: " + classNumbersList.get(i));
+                Log.d(TAG,"Section: " + sectionsList.get(i));
+                Log.d(TAG,"Component: " + componentsList.get(i));
+                Log.d(TAG,"Times: " + timesList.get(i));
+                Log.d(TAG,"Location: " + roomsList.get(i));
+                Log.d(TAG,"Instructor: " + instructorsList.get(i));
+                Log.d(TAG,"Dates: " + datesList.get(i));
             }
             writer.close();
 
